@@ -26,6 +26,7 @@ def test_virtual_env_incorrect_usage():
         list(ve.installed_packages)
 
 
+@pytest.mark.online
 def test_virtual_env_failed_package_installation(monkeypatch):
     original_run = _subprocess.run
 

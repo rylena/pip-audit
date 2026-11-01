@@ -43,6 +43,27 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
 
+  test-offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.x"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Install test dependencies
+        run: make dev PIP_AUDIT_EXTRA=test
+
+      - name: Test without network access
+        # Isolate subprocesses too, including pip invocations in virtual environments.
+        # Drop back to the runner user before executing the tests.
+        run: sudo unshare --net -- runuser -u "$(id -un)" -- ./env/bin/python -m pytest --skip-online
+
   test-windows:
     runs-on: windows-latest
     steps:
@@ -111,7 +132,7 @@ jobs:
   all-tests-pass:
     if: always()
 
-    needs: [coverage]
+    needs: [coverage, test-offline]
 
     runs-on: ubuntu-latest
 

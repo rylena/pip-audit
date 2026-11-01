@@ -77,6 +77,17 @@ make test T=path/to/file.py
 `pip-audit` has a [`pytest`](https://docs.pytest.org/)-based unit test suite,
 including code coverage with [`coverage.py`](https://coverage.readthedocs.io/).
 
+To skip tests that require network access, use:
+
+```bash
+make test T=--skip-online
+```
+
+Tests that require network access, including through subprocesses, should have
+the `pytest.mark.online` marker. CI runs the offline tests in a separate Linux
+network namespace after installing dependencies, so neither the tests nor their
+subprocesses can access the network. The regular test jobs still run the full suite.
+
 ### Documentation
 
 You can run the documentation build locally:
